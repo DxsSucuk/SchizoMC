@@ -1,8 +1,8 @@
-package de.presti.shizomc;
+package de.presti.schizomc;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
-public final class ShizoMC extends JavaPlugin {
+public final class SchizoMC extends JavaPlugin {
 
     @Override
     public void onEnable() {

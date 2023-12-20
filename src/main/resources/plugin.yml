@@ -1,6 +1,6 @@
-name: ShizoMC
+name: SchizoMC
 version: '${project.version}'
-main: de.presti.shizomc.ShizoMC
+main: de.presti.schizomc.SchizoMC
 api-version: '1.20'
 prefix: [The Voices]
 depend: [ProtocolLib]
