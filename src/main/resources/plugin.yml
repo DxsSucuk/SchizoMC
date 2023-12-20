@@ -1,0 +1,9 @@
+name: ShizoMC
+version: '${project.version}'
+main: de.presti.shizomc.ShizoMC
+api-version: '1.20'
+prefix: [The Voices]
+depend: [ProtocolLib]
+authors: [Presti]
+description: Add schizophrenia to Minecraft!
+website: https://presti.me
