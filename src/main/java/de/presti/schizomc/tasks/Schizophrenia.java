@@ -10,6 +10,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Schizophrenia extends BukkitRunnable {
 
@@ -17,6 +18,14 @@ public class Schizophrenia extends BukkitRunnable {
     public void run() {
 
         List<Map.Entry<Player, Float>> players = ArrayUtils.schizoPlayers.entrySet().stream().filter(playerFloatEntry -> playerFloatEntry.getKey().isOnline()).toList();
+
+        if (players.isEmpty()) return;
+
+        if (!ArrayUtils.schizoMessages.isEmpty()) {
+            Player player = players.get(ThreadLocalRandom.current().nextInt(players.size())).getKey();
+
+            player.chat(SchizoUtil.schizoPrefix + ArrayUtils.schizoMessages.get(ThreadLocalRandom.current().nextInt(ArrayUtils.schizoMessages.size())));
+        }
 
         ArrayUtils.schizoBlocks.forEach(block -> {
             boolean shouldDelete = true;
