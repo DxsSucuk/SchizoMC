@@ -12,7 +12,7 @@ public final class SchizoMC extends JavaPlugin {
     public void onEnable() {
         instance = this;
         // Plugin startup logic
-        Bukkit.getScheduler().runTaskTimerAsynchronously(this, new Schizophrenia(), 10L, 20L);
+        new Schizophrenia().runTaskTimerAsynchronously(this, 10L, 20L);
     }
 
     @Override
