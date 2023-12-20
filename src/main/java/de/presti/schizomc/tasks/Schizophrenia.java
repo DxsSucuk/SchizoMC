@@ -21,7 +21,7 @@ public class Schizophrenia extends BukkitRunnable {
 
         if (players.isEmpty()) return;
 
-        if (!ArrayUtils.schizoMessages.isEmpty()) {
+        if (!ArrayUtils.schizoMessages.isEmpty() && ThreadLocalRandom.current().nextFloat(1F) <= 0.10) {
             Player player = players.get(ThreadLocalRandom.current().nextInt(players.size())).getKey();
 
             player.chat(SchizoUtil.schizoPrefix + ArrayUtils.schizoMessages.get(ThreadLocalRandom.current().nextInt(ArrayUtils.schizoMessages.size())));
@@ -42,7 +42,7 @@ public class Schizophrenia extends BukkitRunnable {
             }
 
             if (shouldDelete) {
-                block.getBlock().setType(Material.AIR);
+                SchizoUtil.runActionViaRunnable(aVoid -> block.getBlock().setType(Material.AIR));
             }
         });
 
@@ -85,6 +85,6 @@ public class Schizophrenia extends BukkitRunnable {
             }
         });
 
-        toDeleteEntity.forEach(Entity::remove);
+        toDeleteEntity.forEach(x -> SchizoUtil.runActionViaRunnable(aVoid -> x.remove()));
     }
 }

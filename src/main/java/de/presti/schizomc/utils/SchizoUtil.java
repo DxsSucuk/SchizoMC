@@ -1,5 +1,8 @@
 package de.presti.schizomc.utils;
 
+import de.presti.schizomc.SchizoMC;
+import org.bukkit.Bukkit;
+import org.bukkit.util.Consumer;
 import org.bukkit.util.Vector;
 
 
@@ -14,4 +17,7 @@ public class SchizoUtil {
         return angle > 0.3F;
     }
 
+    public static void runActionViaRunnable(Consumer<Void> x) {
+        Bukkit.getScheduler().runTask(SchizoMC.getInstance(), () -> x.accept(null));
+    }
 }
