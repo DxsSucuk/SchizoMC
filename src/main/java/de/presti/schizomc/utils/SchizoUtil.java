@@ -74,4 +74,9 @@ public class SchizoUtil {
                     blocks.add(world.getBlockAt(x, y, z));
         return blocks;
     }
+
+    public static Location getBlockBehindPlayer(Player player) {
+        Vector inverseDirectionVec = player.getLocation().getDirection().normalize().multiply(-1);
+        return player.getLocation().add(inverseDirectionVec);
+    }
 }
