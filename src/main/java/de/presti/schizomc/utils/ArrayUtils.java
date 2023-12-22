@@ -11,6 +11,7 @@ import java.util.Map;
 public class ArrayUtils {
 
     public static Map<Player, Float> schizoPlayers = new HashMap<>();
+    public static Map<Player, List<Location>> schizoPlayerBlocks = new HashMap<>();
     public static List<String> schizoMessages = new ArrayList<>();
     public static List<Location> schizoBlocks = new ArrayList<>();
 
