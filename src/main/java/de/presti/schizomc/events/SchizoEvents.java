@@ -10,12 +10,31 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.ExplosionPrimeEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SchizoEvents implements Listener {
+
+    @EventHandler
+    public void onMove(PlayerMoveEvent playerMoveEvent) {
+        Player player = playerMoveEvent.getPlayer();
+        Location from = playerMoveEvent.getFrom();
+        Location to = playerMoveEvent.getTo();
+
+        if (to.getBlockX() != from.getBlockX() || to.getBlockY() != from.getBlockY() || to.getBlockZ() != from.getBlockZ()) {
+            if (ArrayUtils.schizoPlayers.containsKey(player)) {
+                if (to.getBlock().getLightLevel() < 5) {
+                    if (ThreadLocalRandom.current().nextFloat() <= 0.10) {
+                        player.playSound(SchizoUtil.getBlockBehindPlayer(player),
+                                Sound.AMBIENT_CAVE, 1F, 1F);
+                    }
+                }
+            }
+        }
+    }
 
     @EventHandler
     public void onBlockPlaceEvent(BlockPlaceEvent e) {

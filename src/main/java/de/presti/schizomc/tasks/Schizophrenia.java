@@ -2,6 +2,7 @@ package de.presti.schizomc.tasks;
 
 import de.presti.schizomc.utils.ArrayUtils;
 import de.presti.schizomc.utils.SchizoUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -10,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
@@ -18,6 +20,25 @@ public class Schizophrenia extends BukkitRunnable {
 
     @Override
     public void run() {
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            float schizo = ArrayUtils.schizoPlayers.getOrDefault(player, 1F);
+
+            Collection<Player> nearby = player.getLocation().getNearbyPlayers(15);
+            if (nearby.size() <= 2) {
+                schizo += 0.002F;
+            } else {
+                schizo -= 0.002F;
+            }
+
+            if (schizo > 1.0F) {
+                schizo = 1.0F;
+            } else if (schizo < 0.0F) {
+                schizo = 0.0F;
+            }
+
+            ArrayUtils.schizoPlayers.put(player, schizo);
+        }
 
         List<Map.Entry<Player, Float>> players = ArrayUtils.schizoPlayers.entrySet().stream().filter(playerFloatEntry -> playerFloatEntry.getKey().isOnline()).toList();
 
