@@ -24,7 +24,31 @@ public class SchizoUtil {
         float angle = eyeLocationDirection
                 .angle(blockLocation.subtract(eyeLocation));
 
-        return angle > 0.3F;
+        /*SchizoMC.getInstance().getLogger().info("Angle: " + angle);
+        SchizoMC.getInstance().getLogger().info("Location: " + blockLocation);*/
+
+        return angle < 0.4F || angle > 1.55F;
+    }
+
+    public static float getSanity(Player player) {
+        if (ArrayUtils.ignorePlayers.contains(player)) return 1.0F;
+
+        return ArrayUtils.schizoPlayers.getOrDefault(player, 1.0F);
+    }
+
+    public static void updateSanity(Player player, float sanity) {
+        if (ArrayUtils.ignorePlayers.contains(player)) return;
+
+        if (sanity < 0F) sanity = 0;
+        if (sanity > 1F) sanity = 1;
+
+        ArrayUtils.schizoPlayers.put(player, sanity);
+
+        // TODO:: add announcement for sanity level.
+    }
+
+    public void broadcastMessage(String message) {
+        Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(message));
     }
 
     private static long retry = 0;

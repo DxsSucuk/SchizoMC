@@ -26,11 +26,18 @@ public class SchizoEvents implements Listener {
 
         if (to.getBlockX() != from.getBlockX() || to.getBlockY() != from.getBlockY() || to.getBlockZ() != from.getBlockZ()) {
             if (ArrayUtils.schizoPlayers.containsKey(player)) {
+                float sanity = SchizoUtil.getSanity(player);
                 if (to.getBlock().getLightLevel() < 5) {
-                    if (ThreadLocalRandom.current().nextFloat() <= 0.10) {
+                    if (sanity <= 0.6F && ThreadLocalRandom.current().nextFloat() <= 0.001) {
                         player.playSound(SchizoUtil.getBlockBehindPlayer(player),
                                 Sound.AMBIENT_CAVE, 1F, 1F);
                     }
+
+                    SchizoUtil.updateSanity(player, sanity - (ThreadLocalRandom.current().nextFloat() * 0.001F));
+                }
+
+                if ((to.getBlock().getLightLevel() > 9 && to.getWorld().isDayTime()) || to.getBlock().getLightFromBlocks() > 9) {
+                    SchizoUtil.updateSanity(player, sanity + (ThreadLocalRandom.current().nextFloat() * 0.0001F));
                 }
             }
         }
@@ -38,6 +45,10 @@ public class SchizoEvents implements Listener {
 
     @EventHandler
     public void onBlockPlaceEvent(BlockPlaceEvent e) {
+        if (SchizoUtil.getSanity(e.getPlayer()) >= 0.7F) {
+            return;
+        }
+
         if (ArrayUtils.schizoPlayers.containsKey(e.getPlayer())) {
             ArrayUtils.schizoBlocks.add(e.getBlock().getLocation());
         }
@@ -55,7 +66,7 @@ public class SchizoEvents implements Listener {
                 if (!SchizoUtil.locationNotVisible(player.getEyeLocation().getDirection(),
                         player.getEyeLocation().toVector(),
                         entityLocation.toVector()) &&
-                        ArrayUtils.schizoPlayers.get(player) >= 0.75) {
+                        SchizoUtil.getSanity(player) >= 0.75) {
                     shouldCancel.set(false);
                     break;
                 }

@@ -10,6 +10,7 @@ import java.util.Map;
 
 public class ArrayUtils {
 
+    public static List<Player> ignorePlayers = new ArrayList<>();
     public static Map<Player, Float> schizoPlayers = new HashMap<>();
     public static Map<Player, List<Location>> schizoPlayerBlocks = new HashMap<>();
     public static List<String> schizoMessages = new ArrayList<>();

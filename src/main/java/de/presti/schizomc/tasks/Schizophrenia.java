@@ -21,24 +21,22 @@ public class Schizophrenia extends BukkitRunnable {
     @Override
     public void run() {
 
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            float schizo = ArrayUtils.schizoPlayers.getOrDefault(player, 1F);
+        SchizoUtil.runActionViaRunnable(x -> {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                if (ArrayUtils.ignorePlayers.contains(player)) continue;
+                float schizo = SchizoUtil.getSanity(player);
 
-            Collection<Player> nearby = player.getLocation().getNearbyPlayers(15);
-            if (nearby.size() <= 2) {
-                schizo += 0.002F;
-            } else {
-                schizo -= 0.002F;
+                Collection<Player> nearby = player.getLocation().getNearbyPlayers(15);
+
+                if (nearby.size() >= 2) {
+                    schizo += 0.002F;
+                } else {
+                    schizo -= 0.002F;
+                }
+
+                SchizoUtil.updateSanity(player, schizo);
             }
-
-            if (schizo > 1.0F) {
-                schizo = 1.0F;
-            } else if (schizo < 0.0F) {
-                schizo = 0.0F;
-            }
-
-            ArrayUtils.schizoPlayers.put(player, schizo);
-        }
+        });
 
         List<Map.Entry<Player, Float>> players = ArrayUtils.schizoPlayers.entrySet().stream().filter(playerFloatEntry -> playerFloatEntry.getKey().isOnline()).toList();
 
@@ -71,6 +69,8 @@ public class Schizophrenia extends BukkitRunnable {
             }
         });
 
+        ArrayUtils.schizoBlocks.clear();
+
         ArrayUtils.schizoPlayerBlocks.forEach((player, locations) -> {
             boolean shouldDelete = true;
 
@@ -97,7 +97,7 @@ public class Schizophrenia extends BukkitRunnable {
             Player player = SchizoUtil.getRandomSchizo(players, x -> ArrayUtils.schizoPlayerBlocks.containsKey(x));
 
             if (player != null) {
-                Location playerLocation = player.getLocation();
+                Location playerLocation = player.getLocation().subtract(0, -1, 0);
                 List<Block> blocks = SchizoUtil.getBlocks(playerLocation.add(10, 10, 10), playerLocation.subtract(10, 10, 10));
 
                 if (blocks != null) {
@@ -112,47 +112,49 @@ public class Schizophrenia extends BukkitRunnable {
             }
         }
 
-        ArrayUtils.schizoBlocks.clear();
+        SchizoUtil.runActionViaRunnable(x -> {
+            if (Bukkit.getOnlinePlayers().size() < 2) return;
 
-        List<Entity> entities = players.stream().filter(playerFloatEntry -> playerFloatEntry.getValue() <= 0.55).map(Map.Entry::getKey).toList().stream().flatMap(p -> p.getNearbyEntities(10, 10, 10).stream()).toList();
+            List<Entity> entities = players.stream().filter(playerFloatEntry -> playerFloatEntry.getValue() <= 0.55).map(Map.Entry::getKey).toList().stream().flatMap(p -> p.getNearbyEntities(10, 10, 10).stream()).toList();
 
-        List<Entity> toDeleteEntity = new ArrayList<>();
+            List<Entity> toDeleteEntity = new ArrayList<>();
 
-        entities.forEach(entity -> {
-            if (entity instanceof Player) {
-                return;
-            }
+            entities.forEach(entity -> {
+                if (entity instanceof Player) {
+                    return;
+                }
 
-            if (toDeleteEntity.contains(entity)) {
-                return;
-            }
+                if (toDeleteEntity.contains(entity)) {
+                    return;
+                }
 
-            if (entity.isDead()) {
-                return;
-            }
+                if (entity.isDead()) {
+                    return;
+                }
 
-            if (toDeleteEntity.stream().anyMatch(c -> c.getUniqueId() == entity.getUniqueId())) {
-                return;
-            }
+                if (toDeleteEntity.stream().anyMatch(c -> c.getUniqueId() == entity.getUniqueId())) {
+                    return;
+                }
 
-            boolean shouldDelete = true;
+                boolean shouldDelete = true;
 
-            for (Player player : players.stream().filter(playerFloatEntry -> playerFloatEntry.getValue() >= 0.85).map(Map.Entry::getKey).toList()) {
-                if (entity.getWorld().equals(player.getWorld())) {
-                    if (entity.getLocation().distance(player.getLocation()) <= 25) {
-                        if (!SchizoUtil.locationNotVisible(player.getEyeLocation().getDirection(), player.getEyeLocation().toVector(), entity.getLocation().toVector())) {
-                            shouldDelete = false;
-                            break;
+                for (Player player : players.stream().filter(playerFloatEntry -> playerFloatEntry.getValue() >= 0.85).map(Map.Entry::getKey).toList()) {
+                    if (entity.getWorld().equals(player.getWorld())) {
+                        if (entity.getLocation().distance(player.getLocation()) <= 25) {
+                            if (!SchizoUtil.locationNotVisible(player.getEyeLocation().getDirection(), player.getEyeLocation().toVector(), entity.getLocation().toVector())) {
+                                shouldDelete = false;
+                                break;
+                            }
                         }
                     }
                 }
-            }
 
-            if (shouldDelete) {
-                toDeleteEntity.add(entity);
-            }
+                if (shouldDelete) {
+                    toDeleteEntity.add(entity);
+                }
+            });
+
+            toDeleteEntity.forEach(z -> SchizoUtil.runActionViaRunnable(aVoid -> z.remove()));
         });
-
-        toDeleteEntity.forEach(x -> SchizoUtil.runActionViaRunnable(aVoid -> x.remove()));
     }
 }

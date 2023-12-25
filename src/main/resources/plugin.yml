@@ -2,8 +2,13 @@ name: SchizoMC
 version: '${project.version}'
 main: de.presti.schizomc.SchizoMC
 api-version: '1.20'
-prefix: [The Voices]
+prefix: The Voices
 depend: [ProtocolLib]
 authors: [Presti]
 description: Add schizophrenia to Minecraft!
 website: https://presti.me
+commands:
+  sanity:
+    description: Sanity command
+    usage: /<command>
+    aliases: [sanitycheck, sanitycheckup, sanitycheckuptime]
