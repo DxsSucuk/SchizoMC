@@ -44,7 +44,7 @@ public class Schizophrenia extends BukkitRunnable {
         if (players.isEmpty()) return;
 
         if (!ArrayUtils.schizoMessages.isEmpty() && ThreadLocalRandom.current().nextFloat(1F) <= 0.10) {
-            Player player = SchizoUtil.getRandomSchizo(players, x -> false);
+            Player player = SchizoUtil.getRandomSchizo(players, x -> ArrayUtils.ignorePlayers.contains(x));
 
             String randomMessage = ArrayUtils.schizoMessages.get(ThreadLocalRandom.current().nextInt(ArrayUtils.schizoMessages.size()));
 
@@ -123,52 +123,5 @@ public class Schizophrenia extends BukkitRunnable {
                 }
             }
         }
-
-        SchizoUtil.runActionViaRunnable(x -> {
-            if (Bukkit.getOnlinePlayers().size() < 2) return;
-
-            List<Entity> entities = players.stream().filter(playerFloatEntry -> playerFloatEntry.getValue() <= 0.55).map(Map.Entry::getKey).toList().stream().flatMap(p -> p.getNearbyEntities(10, 10, 10).stream()).toList();
-
-            List<Entity> toDeleteEntity = new ArrayList<>();
-
-            entities.forEach(entity -> {
-                if (entity instanceof Player) {
-                    return;
-                }
-
-                if (toDeleteEntity.contains(entity)) {
-                    return;
-                }
-
-                if (entity.isDead()) {
-                    return;
-                }
-
-                if (toDeleteEntity.stream().anyMatch(c -> c.getUniqueId() == entity.getUniqueId())) {
-                    return;
-                }
-
-                boolean shouldDelete = true;
-
-                for (Player player : players.stream().filter(playerFloatEntry -> playerFloatEntry.getValue() >= 0.85).map(Map.Entry::getKey).toList()) {
-                    if (entity.getWorld().equals(player.getWorld())) {
-                        if (entity.getLocation().distance(player.getLocation()) <= 25) {
-
-                            SchizoMC.getInstance().getLogger().info("Calling from Entity delete.");
-                            if (!SchizoUtil.locationNotVisible(player.getEyeLocation().getDirection(), player.getEyeLocation().toVector(), entity.getLocation().toVector())) {
-                                shouldDelete = false;
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                if (shouldDelete) {
-                    toDeleteEntity.add(entity);
-                }
-            });
-
-            toDeleteEntity.forEach(z -> SchizoUtil.runActionViaRunnable(aVoid -> z.remove()));
-        });
     }
 }

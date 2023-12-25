@@ -26,7 +26,7 @@ public class Sanity implements CommandExecutor {
                     return true;
                 } else if (args[0].equalsIgnoreCase("all")) {
                     ArrayUtils.schizoPlayers.forEach((t, sanity) ->
-                            player.sendMessage("§c" + t.getName() + ": §4" + String.format("%,.2f", sanity) + "§c!"));
+                            player.sendMessage("§c" + t.getName() + ": §4" + String.format("%,.2f", sanity) + "%§c!"));
                 }
 
                 Player target = Bukkit.getPlayer(args[0]);
@@ -36,9 +36,9 @@ public class Sanity implements CommandExecutor {
                     return true;
                 }
 
-                player.sendMessage("§c" + target.getName() + "'s sanity is at §4" + String.format("%,.2f", ArrayUtils.schizoPlayers.getOrDefault(target, 1.0F)) + "§c!");
+                player.sendMessage("§c" + target.getName() + "'s sanity is at §4" + String.format("%,.2f", ArrayUtils.schizoPlayers.getOrDefault(target, 1.0F)) + "%§c!");
             } else {
-                player.sendMessage("§cYour sanity is at §4" + String.format("%,.2f", ArrayUtils.schizoPlayers.getOrDefault(player, 1.0F)) + "§c!");
+                player.sendMessage("§cYour sanity is at §4" + String.format("%,.2f", ArrayUtils.schizoPlayers.getOrDefault(player, 1.0F)) + "%§c!");
             }
         } else {
             sender.sendMessage("You must be a player to execute this command!");

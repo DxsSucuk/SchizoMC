@@ -6,6 +6,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.ServerOperator;
 import org.bukkit.util.Consumer;
 import org.bukkit.util.Vector;
 
@@ -45,13 +46,25 @@ public class SchizoUtil {
         if (sanity < 0F) sanity = 0;
         if (sanity > 1F) sanity = 1;
 
-        ArrayUtils.schizoPlayers.put(player, sanity);
+        float previousSanity = ArrayUtils.schizoPlayers.getOrDefault(player, 1.0F);
 
-        // TODO:: add announcement for sanity level.
+        if (sanity <= 0.75F && !(previousSanity <= 0.75)) {
+            broadcastMessage("§c" + player.getName() + " is starting to lose their mind! 75% sanity.", ServerOperator::isOp);
+        } else if (sanity <= 0.65F && !(previousSanity <= 0.65)) {
+            broadcastMessage("§c" + player.getName() + " is starting to lose their mind! 65% sanity.", ServerOperator::isOp);
+        } else if (sanity <= 0.55F && !(previousSanity <= 0.55)) {
+            broadcastMessage("§c" + player.getName() + " is starting to lose their mind! 55% sanity.", ServerOperator::isOp);
+        } else if (sanity <= 0.35F && !(previousSanity <= 0.35)) {
+            broadcastMessage("§c" + player.getName() + " is starting to lose their mind! 35% sanity.", ServerOperator::isOp);
+        } else if (sanity <= 0.15F && !(previousSanity <= 0.15)) {
+            broadcastMessage("§c" + player.getName() + " is starting to lose their mind! 15% sanity.", ServerOperator::isOp);
+        }
+
+        ArrayUtils.schizoPlayers.put(player, sanity);
     }
 
-    public void broadcastMessage(String message) {
-        Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(message));
+    public static void broadcastMessage(String message, Predicate<Player> predicate) {
+        Bukkit.getOnlinePlayers().stream().filter(predicate).forEach(player -> player.sendMessage(message));
     }
 
     private static long retry = 0;
