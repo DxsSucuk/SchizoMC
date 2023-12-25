@@ -21,13 +21,16 @@ public class SchizoUtil {
     public static String schizoPrefix = "SCHIZO--!!";
 
     public static boolean locationNotVisible(Vector eyeLocationDirection, Vector eyeLocation, Vector blockLocation) {
-        float angle = eyeLocationDirection
-                .angle(blockLocation.subtract(eyeLocation));
 
-        /*SchizoMC.getInstance().getLogger().info("Angle: " + angle);
-        SchizoMC.getInstance().getLogger().info("Location: " + blockLocation);*/
+        float angle = (float) Math.toDegrees(eyeLocationDirection
+                .angle(blockLocation.subtract(eyeLocation)));
 
-        return angle < 0.4F || angle > 1.55F;
+        /*SchizoMC.getInstance().getLogger().info("");
+        SchizoMC.getInstance().getLogger().info("Angle: " + angle);
+        SchizoMC.getInstance().getLogger().info("Location: " + blockLocation);
+        SchizoMC.getInstance().getLogger().info("");*/
+
+        return angle > 80;
     }
 
     public static float getSanity(Player player) {

@@ -1,5 +1,6 @@
 package de.presti.schizomc.tasks;
 
+import de.presti.schizomc.SchizoMC;
 import de.presti.schizomc.utils.ArrayUtils;
 import de.presti.schizomc.utils.SchizoUtil;
 import org.bukkit.Bukkit;
@@ -45,9 +46,13 @@ public class Schizophrenia extends BukkitRunnable {
         if (!ArrayUtils.schizoMessages.isEmpty() && ThreadLocalRandom.current().nextFloat(1F) <= 0.10) {
             Player player = SchizoUtil.getRandomSchizo(players, x -> false);
 
+            String randomMessage = ArrayUtils.schizoMessages.get(ThreadLocalRandom.current().nextInt(ArrayUtils.schizoMessages.size()));
+
             if (player != null) {
-                player.chat(SchizoUtil.schizoPrefix + ArrayUtils.schizoMessages.get(ThreadLocalRandom.current().nextInt(ArrayUtils.schizoMessages.size())));
+                player.chat(SchizoUtil.schizoPrefix + randomMessage);
             }
+
+            ArrayUtils.schizoMessages.remove(randomMessage);
         }
 
         ArrayUtils.schizoBlocks.forEach(block -> {
@@ -56,6 +61,7 @@ public class Schizophrenia extends BukkitRunnable {
             for (Player player : players.stream().filter(playerFloatEntry -> playerFloatEntry.getValue() >= 0.85).map(Map.Entry::getKey).toList()) {
                 if (block.getWorld().equals(player.getWorld())) {
                     if (block.distance(player.getLocation()) <= 25) {
+                        SchizoMC.getInstance().getLogger().info("Calling from Schizo blocks");
                         if (!SchizoUtil.locationNotVisible(player.getEyeLocation().getDirection(), player.getEyeLocation().toVector(), block.toVector())) {
                             shouldDelete = false;
                             break;
@@ -71,12 +77,15 @@ public class Schizophrenia extends BukkitRunnable {
 
         ArrayUtils.schizoBlocks.clear();
 
+        List<Player> toDeleteSchizoPlayerBlocks = new ArrayList<>();
+
         ArrayUtils.schizoPlayerBlocks.forEach((player, locations) -> {
             boolean shouldDelete = true;
 
             for (Player player1 : players.stream().filter(playerFloatEntry -> playerFloatEntry.getValue() >= 0.85).map(Map.Entry::getKey).toList()) {
                 if (player.getWorld().equals(player1.getWorld())) {
                     if (player.getLocation().distance(player1.getLocation()) <= 25) {
+                        SchizoMC.getInstance().getLogger().info("Calling from Schizo Player blocks");
                         if (!SchizoUtil.locationNotVisible(player1.getEyeLocation().getDirection(), player1.getEyeLocation().toVector(), player.getLocation().toVector())) {
                             shouldDelete = false;
                             break;
@@ -86,15 +95,18 @@ public class Schizophrenia extends BukkitRunnable {
             }
 
             if (shouldDelete) {
-                SchizoUtil.runActionViaRunnable(aVoid -> {
-                    locations.forEach(location -> player.sendBlockChange(location, location.getBlock().getBlockData()));
-                    ArrayUtils.schizoPlayerBlocks.remove(player);
-                });
+                toDeleteSchizoPlayerBlocks.add(player);
+                SchizoUtil.runActionViaRunnable(aVoid ->
+                        locations.forEach(location -> player.sendBlockChange(location, location.getBlock().getBlockData())));
             }
         });
 
-        if (ThreadLocalRandom.current().nextFloat(1F) <= 0.10) {
+        toDeleteSchizoPlayerBlocks.forEach(ArrayUtils.schizoPlayerBlocks::remove);
+
+        if (ThreadLocalRandom.current().nextFloat(1F) <= 0.03) {
             Player player = SchizoUtil.getRandomSchizo(players, x -> ArrayUtils.schizoPlayerBlocks.containsKey(x));
+
+            if (ArrayUtils.ignorePlayers.contains(player)) return;
 
             if (player != null) {
                 Location playerLocation = player.getLocation().subtract(0, -1, 0);
@@ -141,6 +153,8 @@ public class Schizophrenia extends BukkitRunnable {
                 for (Player player : players.stream().filter(playerFloatEntry -> playerFloatEntry.getValue() >= 0.85).map(Map.Entry::getKey).toList()) {
                     if (entity.getWorld().equals(player.getWorld())) {
                         if (entity.getLocation().distance(player.getLocation()) <= 25) {
+
+                            SchizoMC.getInstance().getLogger().info("Calling from Entity delete.");
                             if (!SchizoUtil.locationNotVisible(player.getEyeLocation().getDirection(), player.getEyeLocation().toVector(), entity.getLocation().toVector())) {
                                 shouldDelete = false;
                                 break;

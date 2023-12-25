@@ -1,5 +1,6 @@
 package de.presti.schizomc.events;
 
+import de.presti.schizomc.SchizoMC;
 import de.presti.schizomc.utils.ArrayUtils;
 import de.presti.schizomc.utils.SchizoUtil;
 import org.bukkit.Location;
@@ -63,6 +64,7 @@ public class SchizoEvents implements Listener {
 
         for (Player player : players) {
             if (ArrayUtils.schizoPlayers.containsKey(player)) {
+                SchizoMC.getInstance().getLogger().info("Calling from Explosion");
                 if (!SchizoUtil.locationNotVisible(player.getEyeLocation().getDirection(),
                         player.getEyeLocation().toVector(),
                         entityLocation.toVector()) &&
