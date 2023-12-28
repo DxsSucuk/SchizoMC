@@ -10,6 +10,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,6 +44,16 @@ public class Schizophrenia extends BukkitRunnable {
 
         if (players.isEmpty()) return;
 
+        players.forEach(x -> {
+            if (x.getValue() <= 0.55F) {
+                if (ThreadLocalRandom.current().nextFloat(1F) <= 0.01) {
+                    Player player = x.getKey();
+
+                    player.playSound(SchizoUtil.getBlockBehindPlayer(player, Vector.getRandom().multiply(5)), SchizoUtil.getRandomSound(player), 1F, 1F);
+                }
+            }
+        });
+
         if (!ArrayUtils.schizoMessages.isEmpty() && ThreadLocalRandom.current().nextFloat(1F) <= 0.10) {
             Player player = SchizoUtil.getRandomSchizo(players, x -> ArrayUtils.ignorePlayers.contains(x));
 
@@ -56,7 +67,7 @@ public class Schizophrenia extends BukkitRunnable {
         }
 
         ArrayUtils.schizoBlocks.forEach(block -> {
-            boolean shouldDelete = true;
+            boolean shouldDelete = ThreadLocalRandom.current().nextFloat(1F) <= 0.10;
 
             for (Player player : players.stream().filter(playerFloatEntry -> playerFloatEntry.getValue() >= 0.85).map(Map.Entry::getKey).toList()) {
                 if (block.getWorld().equals(player.getWorld())) {

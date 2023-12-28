@@ -1,19 +1,23 @@
 package de.presti.schizomc;
 
+import com.github.juliarn.npclib.bukkit.util.BukkitPlatformUtil;
 import de.presti.schizomc.commands.Sanity;
 import de.presti.schizomc.events.SchizoEvents;
 import de.presti.schizomc.tasks.Schizophrenia;
 import de.presti.schizomc.utils.ArrayUtils;
+import de.presti.schizomc.utils.NPCUtil;
 import de.presti.schizomc.utils.SchizoUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 public final class SchizoMC extends JavaPlugin {
 
@@ -55,7 +59,7 @@ public final class SchizoMC extends JavaPlugin {
                         return;
                     }
 
-                    boolean shouldDelete = true;
+                    boolean shouldDelete = ThreadLocalRandom.current().nextFloat(1F) <= 0.05;
 
                     for (Player player : players.stream().filter(playerFloatEntry -> playerFloatEntry.getValue() >= 0.85).map(Map.Entry::getKey).toList()) {
                         if (entity.getWorld().equals(player.getWorld())) {
@@ -78,6 +82,47 @@ public final class SchizoMC extends JavaPlugin {
                 toDeleteEntity.forEach(z -> SchizoUtil.runActionViaRunnable(aVoid -> z.remove()));
             }
         }.runTaskTimer(this, 10L, 10L);
+
+        (new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (Bukkit.getOnlinePlayers().size() < 2) return;
+
+                if (ThreadLocalRandom.current().nextFloat(1F) > 0.05) return;
+
+                Player player = SchizoUtil.getRandomSchizo(ArrayUtils.schizoPlayers.entrySet().stream().filter(playerFloatEntry -> playerFloatEntry.getKey().isOnline() && playerFloatEntry.getValue() <= 0.35f).toList(), x -> ArrayUtils.ignorePlayers.contains(x));
+
+                // TODO:: change location to random.
+
+                if (player != null) {
+                    List<Player> possibleNPCs = new ArrayList<>(Bukkit.getOnlinePlayers());
+                    possibleNPCs.removeIf(x -> x.getUniqueId() == player.getUniqueId());
+
+                    Player npcPlayer = possibleNPCs.get(ThreadLocalRandom.current().nextInt(possibleNPCs.size()));
+
+                    ArrayUtils.npcs.add(NPCUtil.createNPC(npcPlayer.getUniqueId(), player.getLocation(),
+                            player.getEyeLocation(), npcPlayer, ArrayUtils.schizoPlayers.entrySet().stream().filter(playerFloatEntry -> playerFloatEntry.getKey().isOnline() && playerFloatEntry.getValue() <= 0.35f)
+                                    .map(Map.Entry::getKey).toList()));
+                }
+            }
+        }).runTaskTimer(this, 10L, 20 * 5);
+
+        (new BukkitRunnable() {
+
+            @Override
+            public void run() {
+
+                List<Player> players = ArrayUtils.schizoPlayers.entrySet().stream().filter(playerFloatEntry -> playerFloatEntry.getKey().isOnline() && playerFloatEntry.getValue() >= 0.36).map(Map.Entry::getKey).toList();
+
+                ArrayUtils.npcs.forEach(x -> {
+                    if (players.stream().anyMatch(p -> BukkitPlatformUtil.distance(x, p.getLocation()) <= 25 &&
+                            !SchizoUtil.locationNotVisible(p.getEyeLocation().getDirection(), p.getEyeLocation().toVector(),
+                                    new Vector(x.position().blockX(), x.position().blockY(), x.position().blockZ())))) {
+                        x.unlink();
+                    }
+                });
+            }
+        }).runTaskTimer(this, 0L, 20L);
     }
 
     @Override

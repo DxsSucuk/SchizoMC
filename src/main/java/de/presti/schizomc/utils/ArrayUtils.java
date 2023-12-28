@@ -1,5 +1,6 @@
 package de.presti.schizomc.utils;
 
+import com.github.juliarn.npclib.api.Npc;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -15,5 +16,7 @@ public class ArrayUtils {
     public static Map<Player, List<Location>> schizoPlayerBlocks = new HashMap<>();
     public static List<String> schizoMessages = new ArrayList<>();
     public static List<Location> schizoBlocks = new ArrayList<>();
+
+    public static List<Npc> npcs = new ArrayList<>();
 
 }

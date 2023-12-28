@@ -25,8 +25,12 @@ public class Sanity implements CommandExecutor {
                     player.sendMessage("§cYour sanity has been fucked!");
                     return true;
                 } else if (args[0].equalsIgnoreCase("all")) {
-                    ArrayUtils.schizoPlayers.forEach((t, sanity) ->
-                            player.sendMessage("§c" + t.getName() + ": §4" + String.format("%,.2f", sanity) + "%§c!"));
+                    ArrayUtils.schizoPlayers.forEach((t, sanity) -> {
+                        if (t.isOnline()) {
+                            player.sendMessage("§c" + t.getName() + ": §4" + String.format("%,.2f", sanity) + "%§c!");
+                        }
+                    });
+                    return true;
                 }
 
                 Player target = Bukkit.getPlayer(args[0]);
