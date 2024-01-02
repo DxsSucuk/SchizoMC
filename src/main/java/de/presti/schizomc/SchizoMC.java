@@ -100,7 +100,7 @@ public final class SchizoMC extends JavaPlugin {
 
                     Player npcPlayer = possibleNPCs.get(ThreadLocalRandom.current().nextInt(possibleNPCs.size()));
 
-                    ArrayUtils.npcs.add(NPCUtil.createNPC(npcPlayer.getUniqueId(), player.getLocation(),
+                    ArrayUtils.npcs.add(NPCUtil.createNPC(npcPlayer.getUniqueId(), SchizoUtil.getBlockBehindPlayer(player, Vector.getRandom().multiply(5)),
                             player.getEyeLocation(), npcPlayer, ArrayUtils.schizoPlayers.entrySet().stream().filter(playerFloatEntry -> playerFloatEntry.getKey().isOnline() && playerFloatEntry.getValue() <= 0.35f)
                                     .map(Map.Entry::getKey).toList()));
                 }
