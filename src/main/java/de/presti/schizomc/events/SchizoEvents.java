@@ -86,7 +86,7 @@ public class SchizoEvents implements Listener {
 
     @EventHandler
     public void onAsyncChat(AsyncPlayerChatEvent e) {
-        if (!e.isAsynchronous() || e.isCancelled() || !ArrayUtils.schizoPlayers.containsKey(e.getPlayer())) return;
+        if (e.isCancelled() || !ArrayUtils.schizoPlayers.containsKey(e.getPlayer())) return;
 
         String message = e.getMessage();
 

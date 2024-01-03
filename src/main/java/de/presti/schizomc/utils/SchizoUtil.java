@@ -80,7 +80,10 @@ public class SchizoUtil {
     }
 
     public static void broadcastMessage(String message, Predicate<Player> predicate) {
-        Bukkit.getOnlinePlayers().stream().filter(predicate).forEach(player -> player.sendMessage(message));
+        Bukkit.getOnlinePlayers().stream().filter(predicate).forEach(player -> {
+            player.sendMessage(message);
+            player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 1F);
+        });
     }
 
     private static long retry = 0;

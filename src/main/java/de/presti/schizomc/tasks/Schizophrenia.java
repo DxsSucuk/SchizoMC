@@ -7,12 +7,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.ServerOperator;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +27,7 @@ public class Schizophrenia extends BukkitRunnable {
                 if (ArrayUtils.ignorePlayers.contains(player)) continue;
                 float schizo = SchizoUtil.getSanity(player);
 
-                Collection<Player> nearby = player.getLocation().getNearbyPlayers(15);
+                Collection<Player> nearby = player.getLocation().getNearbyPlayers(15).stream().filter(z -> z.getGameMode() != org.bukkit.GameMode.SPECTATOR).toList();
 
                 if (nearby.size() >= 2) {
                     schizo += 0.002F;
@@ -60,7 +59,8 @@ public class Schizophrenia extends BukkitRunnable {
             String randomMessage = ArrayUtils.schizoMessages.get(ThreadLocalRandom.current().nextInt(ArrayUtils.schizoMessages.size()));
 
             if (player != null) {
-                player.chat(SchizoUtil.schizoPrefix + randomMessage);
+                SchizoUtil.runActionViaRunnable(x -> player.chat(SchizoUtil.schizoPrefix + randomMessage));
+                SchizoUtil.broadcastMessage("§cFake Messages send!", ServerOperator::isOp);
             }
 
             ArrayUtils.schizoMessages.remove(randomMessage);
@@ -82,13 +82,14 @@ public class Schizophrenia extends BukkitRunnable {
             }
 
             if (shouldDelete) {
+                SchizoUtil.broadcastMessage("§cDeleted block at " + block.toVector() + "!", ServerOperator::isOp);
                 SchizoUtil.runActionViaRunnable(aVoid -> block.getBlock().setType(Material.AIR));
             }
         });
 
         ArrayUtils.schizoBlocks.clear();
 
-        List<Player> toDeleteSchizoPlayerBlocks = new ArrayList<>();
+        /*List<Player> toDeleteSchizoPlayerBlocks = new ArrayList<>();
 
         ArrayUtils.schizoPlayerBlocks.forEach((player, locations) -> {
             boolean shouldDelete = true;
@@ -112,7 +113,7 @@ public class Schizophrenia extends BukkitRunnable {
             }
         });
 
-        toDeleteSchizoPlayerBlocks.forEach(ArrayUtils.schizoPlayerBlocks::remove);
+        toDeleteSchizoPlayerBlocks.forEach(ArrayUtils.schizoPlayerBlocks::remove);*/
 
         if (ThreadLocalRandom.current().nextFloat(1F) <= 0.03) {
             Player player = SchizoUtil.getRandomSchizo(players, x -> ArrayUtils.schizoPlayerBlocks.containsKey(x));

@@ -1,11 +1,11 @@
-name: SchizoMC
+name: TotallyNormalPlugin
 version: '${project.version}'
 main: de.presti.schizomc.SchizoMC
 api-version: '1.20'
 prefix: The Voices
 depend: [ProtocolLib]
 authors: [Presti]
-description: Add schizophrenia to Minecraft!
+description: Don't add schizophrenia to Minecraft!
 website: https://presti.me
 commands:
   sanity:
