@@ -83,55 +83,6 @@ public final class SchizoMC extends JavaPlugin {
                 toDeleteEntity.forEach(z -> SchizoUtil.runActionViaRunnable(aVoid -> z.remove()));
             }
         }.runTaskTimer(this, 10L, 10L);
-
-        (new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (Bukkit.getOnlinePlayers().size() < 2) return;
-
-                if (ThreadLocalRandom.current().nextFloat(1F) > 0.05) return;
-
-                Player player = SchizoUtil.getRandomSchizo(ArrayUtils.schizoPlayers.entrySet().stream().filter(playerFloatEntry -> playerFloatEntry.getKey().isOnline() && playerFloatEntry.getValue() <= 0.35f).toList(), x -> ArrayUtils.ignorePlayers.contains(x));
-
-                if (player != null) {
-                    List<Player> possibleNPCs = new ArrayList<>(Bukkit.getOnlinePlayers());
-                    possibleNPCs.removeIf(x -> x.getUniqueId() == player.getUniqueId());
-
-                    Player npcPlayer = possibleNPCs.get(ThreadLocalRandom.current().nextInt(possibleNPCs.size()));
-
-                    SchizoUtil.broadcastMessage("§cFaked NPC for " + player.getName() + " that is " + npcPlayer.getName() + "!", ServerOperator::isOp);
-
-                    ArrayUtils.npcs.add(NPCUtil.createNPC(npcPlayer.getUniqueId(), SchizoUtil.getBlockBehindPlayer(player, Vector.getRandom().multiply(5)),
-                            player.getEyeLocation(), npcPlayer, ArrayUtils.schizoPlayers.entrySet().stream().filter(playerFloatEntry -> playerFloatEntry.getKey().isOnline() && playerFloatEntry.getValue() <= 0.35f)
-                                    .map(Map.Entry::getKey).toList()));
-                }
-            }
-        }).runTaskTimer(this, 10L, 20 * 5);
-
-        (new BukkitRunnable() {
-
-            @Override
-            public void run() {
-
-                if (ArrayUtils.npcs.isEmpty()) return;;
-
-                List<Player> players = ArrayUtils.schizoPlayers.entrySet().stream().filter(playerFloatEntry -> playerFloatEntry.getKey().isOnline() && playerFloatEntry.getValue() >= 0.36).map(Map.Entry::getKey).toList();
-
-                ArrayUtils.npcs.forEach(x -> {
-                    if (players.stream().noneMatch(p -> BukkitPlatformUtil.distance(x, p.getLocation()) <= 45)) {
-                        SchizoUtil.broadcastMessage("§cDeleting NPC §7" + x.profile().uniqueId() + ", because of distance§c!", ServerOperator::isOp);
-                        x.unlink();
-                    }
-
-                    if (players.stream().anyMatch(p -> BukkitPlatformUtil.distance(x, p.getLocation()) <= 45 &&
-                            !SchizoUtil.locationNotVisible(p.getEyeLocation().getDirection(), p.getEyeLocation().toVector(),
-                                    new Vector(x.position().blockX(), x.position().blockY(), x.position().blockZ())))) {
-                        SchizoUtil.broadcastMessage("§cDeleting NPC §7" + x.profile().uniqueId() + ", because of visibility§c!", ServerOperator::isOp);
-                        x.unlink();
-                    }
-                });
-            }
-        }).runTaskTimer(this, 0L, 10L);
     }
 
     @Override

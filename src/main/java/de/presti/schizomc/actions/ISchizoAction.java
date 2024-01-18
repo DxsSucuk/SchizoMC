@@ -7,7 +7,7 @@ import java.util.Map;
 
 public interface ISchizoAction {
 
-    void onTrigger(Player player);
+    void onTrigger(Player player, List<Map.Entry<Player, Float>> players);
     default void onTick(int tick, List<Map.Entry<Player, Float>> players) {}
 
 }

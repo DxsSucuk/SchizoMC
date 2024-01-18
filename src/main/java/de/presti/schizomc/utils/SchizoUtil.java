@@ -1,5 +1,6 @@
 package de.presti.schizomc.utils;
 
+import com.github.juliarn.npclib.api.Position;
 import de.presti.schizomc.SchizoMC;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -34,6 +35,10 @@ public class SchizoUtil {
         SchizoMC.getInstance().getLogger().info("");*/
 
         return angle > 80;
+    }
+
+    public static Vector convertPositionToVector(Position position) {
+        return new Vector(position.x(), position.y(), position.z());
     }
 
     public static Sound[] getPossibleSounds(Player player) {
