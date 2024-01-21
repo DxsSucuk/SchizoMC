@@ -26,7 +26,7 @@ public class SchizoEvents implements Listener {
         Location to = playerMoveEvent.getTo();
 
         if (to.getBlockX() != from.getBlockX() || to.getBlockY() != from.getBlockY() || to.getBlockZ() != from.getBlockZ()) {
-            if (ArrayUtils.schizoPlayers.containsKey(player)) {
+            if (ArrayUtils.schizoPlayers.containsKey(player.getUniqueId())) {
                 float sanity = SchizoUtil.getSanity(player);
                 if (to.getBlock().getLightLevel() < 5) {
                     if (sanity <= 0.6F && ThreadLocalRandom.current().nextFloat() <= 0.001) {
@@ -50,7 +50,7 @@ public class SchizoEvents implements Listener {
             return;
         }
 
-        if (ArrayUtils.schizoPlayers.containsKey(e.getPlayer())) {
+        if (ArrayUtils.schizoPlayers.containsKey(e.getPlayer().getUniqueId())) {
             ArrayUtils.schizoBlocks.add(e.getBlock().getLocation());
         }
     }
@@ -63,7 +63,7 @@ public class SchizoEvents implements Listener {
         Collection<Player> players = entityLocation.getNearbyPlayers(25);
 
         for (Player player : players) {
-            if (ArrayUtils.schizoPlayers.containsKey(player)) {
+            if (ArrayUtils.schizoPlayers.containsKey(player.getUniqueId())) {
                 SchizoMC.getInstance().getLogger().info("Calling from Explosion");
                 if (!SchizoUtil.locationNotVisible(player.getEyeLocation().getDirection(),
                         player.getEyeLocation().toVector(),
@@ -86,7 +86,7 @@ public class SchizoEvents implements Listener {
 
     @EventHandler
     public void onAsyncChat(AsyncPlayerChatEvent e) {
-        if (e.isCancelled() || !ArrayUtils.schizoPlayers.containsKey(e.getPlayer())) return;
+        if (e.isCancelled() || !ArrayUtils.schizoPlayers.containsKey(e.getPlayer().getUniqueId())) return;
 
         String message = e.getMessage();
 

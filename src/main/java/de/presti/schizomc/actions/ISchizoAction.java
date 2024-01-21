@@ -8,6 +8,11 @@ import java.util.Map;
 public interface ISchizoAction {
 
     void onTrigger(Player player, List<Map.Entry<Player, Float>> players);
-    default void onTick(int tick, List<Map.Entry<Player, Float>> players) {}
+    default void onTick(long tick, List<Map.Entry<Player, Float>> players) {}
+
+    String name();
+    int minPlayers();
+    float triggerSanity();
+    float triggerChance();
 
 }

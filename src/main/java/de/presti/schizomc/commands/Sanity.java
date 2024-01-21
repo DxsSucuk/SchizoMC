@@ -16,8 +16,8 @@ public class Sanity implements CommandExecutor {
         if (sender instanceof Player player) {
             if (args.length != 0 && player.isOp()) {
                 if (args[0].equalsIgnoreCase("off")) {
-                    ArrayUtils.schizoPlayers.put(player, 1F);
-                    ArrayUtils.ignorePlayers.add(player);
+                    SchizoUtil.updateSanity(player, 1F);
+                    ArrayUtils.ignorePlayers.add(player.getUniqueId());
                     player.sendMessage("§cYour schizophrenia has been disabled!");
                     return true;
                 } else if (args[0].equalsIgnoreCase("fuck")) {
@@ -38,9 +38,9 @@ public class Sanity implements CommandExecutor {
                         return true;
                     }
                 } else if (args[0].equalsIgnoreCase("all")) {
-                    ArrayUtils.schizoPlayers.forEach((t, sanity) -> {
+                    ArrayUtils.getSchizoPlayers().forEach((t, sanity) -> {
                         if (t.isOnline()) {
-                            player.sendMessage("§c" + t.getName() + ": §4" + String.format("%,.2f", sanity) + "%§c!");
+                            player.sendMessage("§c" + t.getName() + ": §4" + String.format("%,.2f", sanity * 100) + "%§c - §4" + String.format("%,.2f", SchizoUtil.getTriggerScale(sanity) * 100) + "%§c!");
                         }
                     });
                     return true;
@@ -53,10 +53,10 @@ public class Sanity implements CommandExecutor {
                     return true;
                 }
 
-                player.sendMessage("§c" + target.getName() + "'s sanity is at §4" + String.format("%,.2f", SchizoUtil.getSanity(target)) + "%§c!");
-            } else {
+                player.sendMessage("§c" + target.getName() + "'s sanity is at §4" + String.format("%,.2f", SchizoUtil.getSanity(target)) + "%§c - §4" + String.format("%,.2f", SchizoUtil.getTriggerScale(SchizoUtil.getSanity(target)) * 100) + "%§c!");
+            }/* else {
                 player.sendMessage("§cYour sanity is at §4" + String.format("%,.2f", SchizoUtil.getSanity(player)) + "%§c!");
-            }
+            }*/
         } else {
             sender.sendMessage("You must be a player to execute this command!");
         }

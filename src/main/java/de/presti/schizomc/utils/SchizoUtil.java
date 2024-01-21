@@ -1,11 +1,10 @@
 package de.presti.schizomc.utils;
 
+import com.github.juliarn.npclib.api.Npc;
 import com.github.juliarn.npclib.api.Position;
+import com.github.juliarn.npclib.bukkit.util.BukkitPlatformUtil;
 import de.presti.schizomc.SchizoMC;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Sound;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.ServerOperator;
@@ -19,10 +18,12 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
 
+import static org.bukkit.util.NumberConversions.square;
+
 
 public class SchizoUtil {
 
-    public static String schizoPrefix = "SCHIZO--!!";
+    public static String schizoPrefix = "AWDADW--!!";
 
     public static boolean locationNotVisible(Vector eyeLocationDirection, Vector eyeLocation, Vector blockLocation) {
 
@@ -56,18 +57,18 @@ public class SchizoUtil {
 
 
     public static float getSanity(Player player) {
-        if (ArrayUtils.ignorePlayers.contains(player)) return 1.0F;
+        if (ArrayUtils.ignorePlayers.contains(player.getUniqueId())) return 1.0F;
 
-        return ArrayUtils.schizoPlayers.getOrDefault(player, 1.0F);
+        return ArrayUtils.schizoPlayers.getOrDefault(player.getUniqueId(), 1.0F);
     }
 
     public static void updateSanity(Player player, float sanity) {
-        if (ArrayUtils.ignorePlayers.contains(player)) return;
+        if (ArrayUtils.ignorePlayers.contains(player.getUniqueId())) return;
 
         if (sanity < 0F) sanity = 0;
         if (sanity > 1F) sanity = 1;
 
-        float previousSanity = ArrayUtils.schizoPlayers.getOrDefault(player, 1.0F);
+        float previousSanity = ArrayUtils.schizoPlayers.getOrDefault(player.getUniqueId(), 1.0F);
 
         if (sanity <= 0.75F && !(previousSanity <= 0.75)) {
             broadcastMessage("§c" + player.getName() + " is starting to lose their mind! 75% sanity.", ServerOperator::isOp);
@@ -81,7 +82,16 @@ public class SchizoUtil {
             broadcastMessage("§c" + player.getName() + " is starting to lose their mind! 15% sanity.", ServerOperator::isOp);
         }
 
-        ArrayUtils.schizoPlayers.put(player, sanity);
+        ArrayUtils.schizoPlayers.put(player.getUniqueId(), sanity);
+
+        float finalSanity = sanity;
+        SchizoMC.getInstance().getSchizoManager().getSchizoByTriggerSanity(sanity).forEach(schizo -> {
+            if (schizo.minPlayers() <= Bukkit.getOnlinePlayers().size()) {
+                if (schizo.triggerChance() * getTriggerScale(finalSanity) >= ThreadLocalRandom.current().nextFloat()) {
+                    schizo.onTrigger(player, ArrayUtils.getSchizoPlayers().entrySet().stream().filter(playerFloatEntry -> playerFloatEntry.getKey().isOnline()).toList());
+                }
+            }
+        });
     }
 
     public static void broadcastMessage(String message, Predicate<Player> predicate) {
@@ -120,8 +130,10 @@ public class SchizoUtil {
     {
         if(pos1.getWorld() != pos2.getWorld())
             return null;
+
         World world = pos1.getWorld();
         List<Block> blocks = new ArrayList<>();
+
         int x1 = pos1.getBlockX();
         int y1 = pos1.getBlockY();
         int z1 = pos1.getBlockZ();
@@ -130,18 +142,22 @@ public class SchizoUtil {
         int y2 = pos2.getBlockY();
         int z2 = pos2.getBlockZ();
 
+
         int lowestX = Math.min(x1, x2);
         int lowestY = Math.min(y1, y2);
         int lowestZ = Math.min(z1, z2);
 
-        int highestX = lowestX == x1 ? x2 : x1;
-        int highestY = lowestX == y1 ? y2 : y1;
-        int highestZ = lowestX == z1 ? z2 : z1;
+        int highestX = Math.max(x1, x2);
+        int highestY = Math.max(y1, y2);
+        int highestZ = Math.max(z1, z2);
 
-        for(int x = lowestX; x <= highestX; x++)
-            for(int y = lowestY; y <= highestY; y++)
-                for(int z = lowestZ; z <= highestZ; z++)
+        for(int x = lowestX; x <= highestX; x++) {
+            for (int y = lowestY; y <= highestY; y++) {
+                for (int z = lowestZ; z <= highestZ; z++) {
                     blocks.add(world.getBlockAt(x, y, z));
+                }
+            }
+        }
         return blocks;
     }
 
@@ -149,8 +165,28 @@ public class SchizoUtil {
         return getBlockBehindPlayer(player, new Vector(0, 0, 0));
     }
 
+    public static Material[] getBlockMats() {
+        return Arrays.stream(Material.values()).filter(x -> x.isBlock() && x.isSolid()).toArray(Material[]::new);
+    }
+
     public static Location getBlockBehindPlayer(Player player, Vector addition) {
-        Vector inverseDirectionVec = player.getLocation().getDirection().normalize().add(addition).multiply(-1);
+        Vector inverseDirectionVec = addition.multiply(player.getLocation().getDirection().normalize().multiply(-1));
         return player.getLocation().add(inverseDirectionVec);
+    }
+
+    public static double distance(Npc<?, ?, ?, ?> npc, Location location) {
+        return Math.sqrt(BukkitPlatformUtil.distance(npc, location));
+    }
+
+    public static float getTriggerScale(float sanity) {
+        if (sanity <= 0.3) {
+            return 1.5f;
+        } else if (sanity <= 0.5) {
+            return 1.25f;
+        } else if (sanity <= 0.75) {
+            return 1.1f;
+        } else {
+            return 1.0f;
+        }
     }
 }
